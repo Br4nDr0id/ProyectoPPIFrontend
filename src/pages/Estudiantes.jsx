@@ -1,7 +1,8 @@
 import React from 'react'
 
-export default function Estudiantes() {
+export default function productos() {
+
   return (
-    <div>Estudiantes</div>
+    <div>Estudiantes destacados en venta</div>
   )
 }
