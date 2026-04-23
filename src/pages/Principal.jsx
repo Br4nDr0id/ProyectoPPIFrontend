@@ -24,6 +24,7 @@ export default function Principal() {
               segura y facil.
             </p>
             <div className="hero-botones">
+              {/* Enlace al catálogo de productos */ }
               <Link to="/productos" className="btn-primario">Ver productos</Link>
               <button className="btn-secundario">Publicar producto</button>
             </div>

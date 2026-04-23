@@ -320,3 +320,541 @@ footer {
   font-size: 0.78rem;
   color: #4a7050;
 }
+
+/* ============================================================
+   ESTILOS NUEVOS — pegar al final de src/App.css
+   
+   Contiene:
+     1. Estilos del menú de autenticación (.menu-auth, etc.)
+     2. Estilos de las páginas de Login y Registro (.auth-*)
+     3. Estilos de los campos del formulario (.campo-*)
+   ============================================================ */
+
+
+/* ── 1. MENÚ: botones de autenticación ───────────────────────
+   Se agrega al lado derecho del nav existente.
+   .menu-auth agrupa los dos enlaces en fila.               */
+
+.menu-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px; /* Separa visualmente del resto del nav */
+}
+
+/* "Iniciar sesión": apariencia de enlace sutil */
+.menu-link-login {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.menu-link-login:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+
+/* ── 2. PÁGINA DE AUTH: contenedor principal ─────────────────
+   Ocupa el alto disponible y centra la tarjeta.            */
+
+.auth-page {
+  min-height: calc(100vh - 64px); /* 64px = alto del header */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0faf3 0%, var(--verde-claro) 100%);
+  padding: 32px 16px;
+}
+
+/* ── Tarjeta blanca del formulario ───────────────────────── */
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(26, 115, 50, 0.12);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px; /* Ancho máximo para pantallas grandes */
+}
+
+/* La tarjeta de registro puede ser un poco más alta */
+.auth-card--registro {
+  max-width: 440px;
+}
+
+/* ── Encabezado dentro de la tarjeta ─────────────────────── */
+.auth-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* Nombre del sistema (actúa como mini logo) */
+.auth-logo {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--verde-tdea);
+  letter-spacing: -0.3px;
+  margin-bottom: 16px;
+  background-color: var(--verde-claro);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Título principal de la tarjeta */
+.auth-titulo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a3d25;
+  margin-bottom: 6px;
+}
+
+/* Subtítulo descriptivo */
+.auth-subtitulo {
+  font-size: 0.9rem;
+  color: var(--texto-medio);
+}
+
+
+/* ── 3. FORMULARIO Y CAMPOS ──────────────────────────────────
+   .auth-form:   el formulario completo
+   .campo-grupo: cada fila etiqueta + input
+   .campo-label: la etiqueta encima del campo
+   .campo-input: el campo de texto/email/password/select      */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* Espacio vertical entre cada campo-grupo */
+}
+
+/* Grupo: etiqueta encima, input abajo */
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Fila especial para etiqueta + enlace "¿Olvidaste?" en la misma línea */
+.campo-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Etiqueta del campo */
+.campo-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto-oscuro);
+}
+
+/* Enlace pequeño (ej: "¿Olvidaste tu contraseña?") */
+.campo-link {
+  font-size: 0.8rem;
+  color: var(--verde-tdea);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.campo-link:hover {
+  text-decoration: underline;
+}
+
+/* Input de texto, email, password */
+.campo-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #d1d5db;      /* Borde gris neutro */
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--texto-oscuro);
+  background-color: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;                    /* Eliminamos el outline por defecto */
+}
+
+/* Cuando el usuario hace clic en el campo */
+.campo-input:focus {
+  border-color: var(--verde-tdea);
+  box-shadow: 0 0 0 3px rgba(26, 115, 50, 0.12);
+  background-color: white;
+}
+
+/* El select hereda los estilos del input */
+.campo-select {
+  cursor: pointer;
+  appearance: auto; /* Mantiene la flecha nativa del navegador */
+}
+
+/* ── Mensaje de error visible ─────────────────────────────── */
+.auth-error {
+  font-size: 0.85rem;
+  color: #dc2626;               /* Rojo semántico para errores */
+  background-color: #fef2f2;   /* Fondo rosado claro */
+  border: 1px solid #fecaca;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* ── Botón principal del formulario ──────────────────────── */
+.auth-btn-primario {
+  width: 100%;
+  padding: 13px;
+  background-color: var(--verde-tdea);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 4px;
+}
+
+.auth-btn-primario:hover {
+  background-color: var(--verde-oscuro);
+  transform: translateY(-1px);
+}
+
+.auth-btn-primario:active {
+  transform: translateY(0);
+}
+
+/* ── Pie de la tarjeta: enlace alternativo ───────────────── */
+.auth-footer-texto {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.88rem;
+  color: var(--texto-medio);
+}
+
+/* Enlace dentro del pie (ej: "Regístrate aquí") */
+.auth-link {
+  color: var(--verde-tdea);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+
+/* ── Responsivo: pantallas pequeñas ──────────────────────── */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 20px; /* Menos padding en móvil */
+  }
+
+  .auth-titulo {
+    font-size: 1.35rem;
+  }
+}
+/* ============================================================
+   FIN DE ESTILOS NUEVOS
+   ============================================================ */
+
+/* ============================================================
+   ESTILOS DE PRODUCTOS — pegar al final de src/App.css
+   ============================================================ */
+
+/* ── Página completa ─────────────────────────────────────── */
+.prod-pagina {
+  flex: 1;
+}
+
+/* ── Encabezado verde con buscador ──────────────────────── */
+.prod-encabezado {
+  background: linear-gradient(135deg, var(--verde-tdea) 0%, var(--verde-oscuro) 100%);
+  padding: 48px 0 40px;
+}
+
+.prod-encabezado-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.prod-titulo-pagina {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.prod-subtitulo-pagina {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-bottom: 24px;
+}
+
+/* Buscador grande */
+.prod-buscador {
+  width: 100%;
+  max-width: 520px;
+  padding: 13px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  color: var(--texto-oscuro);
+}
+
+.prod-buscador:focus {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Layout: sidebar + grilla ────────────────────────────── */
+.prod-contenido {
+  display: flex;
+  max-width: 1100px;
+  margin: 36px auto;
+  padding: 0 24px;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+/* ── Sidebar de categorías ───────────────────────────────── */
+.prod-sidebar {
+  width: 200px;
+  flex-shrink: 0; /* No se encoge aunque haya poco espacio */
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  position: sticky; /* Se queda visible al hacer scroll */
+  top: 84px;        /* 64px del header + 20px de margen */
+}
+
+.prod-sidebar-titulo {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--texto-medio);
+  margin-bottom: 14px;
+}
+
+/* Lista sin estilos de lista */
+.prod-categorias-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Botón de categoría */
+.prod-categoria-btn {
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 0.88rem;
+  color: var(--texto-oscuro);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.prod-categoria-btn:hover {
+  background-color: var(--verde-claro);
+  color: var(--verde-oscuro);
+}
+
+/* Categoría activa (seleccionada) */
+.prod-categoria-btn.activa {
+  background-color: var(--verde-tdea);
+  color: white;
+  font-weight: 600;
+}
+
+/* ── Área de resultados ──────────────────────────────────── */
+.prod-resultados {
+  flex: 1; /* Ocupa todo el espacio restante */
+  min-width: 0; /* Evita desbordamiento en flex */
+}
+
+/* Barra con conteo y select de orden */
+.prod-barra-superior {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.prod-conteo {
+  font-size: 0.88rem;
+  color: var(--texto-medio);
+}
+
+/* Select de ordenamiento */
+.prod-orden-select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--texto-oscuro);
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.prod-orden-select:focus {
+  border-color: var(--verde-tdea);
+}
+
+/* ── Grilla de tarjetas ──────────────────────────────────── */
+.prod-grilla {
+  display: grid;
+  /* Mínimo 220px por tarjeta, se ajusta automáticamente */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* ── Tarjeta individual ──────────────────────────────────── */
+.prod-tarjeta {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden; /* La imagen no se sale del border-radius */
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.prod-tarjeta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(26, 115, 50, 0.12);
+}
+
+/* Contenedor de imagen con posición relativa para el badge */
+.prod-imagen-wrapper {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background-color: var(--verde-claro);
+}
+
+/* Imagen del producto */
+.prod-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Recorta la imagen para que llene el espacio */
+  display: block;
+}
+
+/* Badge de categoría encima de la imagen */
+.prod-badge-categoria {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(26, 115, 50, 0.85);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* Cuerpo de la tarjeta */
+.prod-cuerpo {
+  padding: 14px 16px 16px;
+}
+
+/* Nombre del producto */
+.prod-nombre {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--texto-oscuro);
+  margin-bottom: 6px;
+  /* Limita a 2 líneas con puntos suspensivos */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+/* Estrellas */
+.prod-estrellas {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.88rem;
+  color: #f59e0b; /* Amarillo/dorado */
+  margin-bottom: 6px;
+}
+
+.estrella-vacia {
+  color: #d1d5db; /* Gris para estrellas vacías */
+}
+
+/* Número de calificación al lado de las estrellas */
+.prod-calificacion-num {
+  font-size: 0.78rem;
+  color: var(--texto-medio);
+  margin-left: 2px;
+}
+
+/* Vendedor */
+.prod-vendedor {
+  font-size: 0.8rem;
+  color: var(--texto-medio);
+  margin-bottom: 10px;
+}
+
+/* Precio */
+.prod-precio {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--verde-tdea);
+}
+
+/* ── Estado vacío (sin resultados) ───────────────────────── */
+.prod-vacio {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--texto-medio);
+}
+
+.prod-vacio p {
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+}
+
+/* ── Responsivo ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* En móvil el layout es vertical */
+  .prod-contenido {
+    flex-direction: column;
+  }
+
+  /* El sidebar ocupa todo el ancho */
+  .prod-sidebar {
+    width: 100%;
+    position: static; /* Ya no es sticky en móvil */
+  }
+
+  /* Las categorías se muestran en fila horizontal */
+  .prod-categorias-lista {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .prod-categoria-btn {
+    width: auto;
+  }
+
+  /* Menos columnas en pantallas pequeñas */
+  .prod-grilla {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
