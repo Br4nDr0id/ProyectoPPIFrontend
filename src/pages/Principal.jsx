@@ -1,7 +1,11 @@
 // src/pages/Principal.jsx
 import React from 'react';
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
 export default function Principal() {
+  const {usuario} = useAuth()
+  const navigate = useNavigate()
   const categorias = [
     {nombre: 'Libros y apuntes',descripcion:'Materiales de estudio'},
     {nombre: 'Tecnología',descripcion:'Equipos y accesorios'},
@@ -26,7 +30,9 @@ export default function Principal() {
             <div className="hero-botones">
               {/* Enlace al catálogo de productos */ }
               <Link to="/productos" className="btn-primario">Ver productos</Link>
-              <button className="btn-secundario">Publicar producto</button>
+              <button className="btn-secundario"onClick={() => usuario ? navigate('/publicar'): navigate('/login')}>
+                Publicar producto
+                </button>
             </div>
           </div>
           <div className="hero-imagen" aria-hidden = "true">
