@@ -23,11 +23,11 @@ export default function Login() {
   // Esta funcion se ejecuta cada vez que el usuario escribe
   // en cualqier campo del formulario.
   // usa "computed property names" para actualizar
-  // dinamicamente el campo correcto sisn repetir codigo.
+  // dinamicamente el campo correcto sin repetir codigo.
   const handleChange = (e) => {
     const{name, value} = e.target
     setFormData(prev => ({...prev, [name]: value}))
-  } // por documentar
+  } 
 
   //---- Manejo del envio del formulario ----
   // Por ahoa solo previene el comportamiento por defecto
