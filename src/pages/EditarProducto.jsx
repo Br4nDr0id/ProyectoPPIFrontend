@@ -1,25 +1,21 @@
 
-//
-// Formulario para publicar un nuevo producto.
-// Solo accesible si el usuario está logueado (RutaProtegida).
-// Al enviar, crea el producto en la BD y redirige al catálogo.
-
+// Página de edición de un producto existente.
+// Carga los datos actuales, los muestra pre-llenados y
+// permite modificar cualquier campo, incluyendo la imagen.
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useNavigate, useParams } from 'react-router-dom'
 import productosService from '../services/productosService'
 
-export default function PublicarProducto() {
+export default function EditarProducto() {
 
-  const { usuario } = useAuth()
+  const { id }   = useParams()
   const navigate = useNavigate()
 
-  // ── Refs para los inputs de archivo ocultos ──────────────
-  const refCamara   = useRef(null)
-  const refGaleria  = useRef(null)
+  const refCamara  = useRef(null)
+  const refGaleria = useRef(null)
 
-  // ── Estado del formulario ────────────────────────────────
+  // ── Campos del formulario ────────────────────────────────
   const [formData, setFormData] = useState({
     nombre:       '',
     descripcion:  '',
@@ -28,63 +24,78 @@ export default function PublicarProducto() {
     id_categoria: '',
   })
 
-  // ── Estado de la imagen seleccionada ────────────────────
-  const [imagenFile,    setImagenFile]    = useState(null)   // archivo real
-  const [imagenPreview, setImagenPreview] = useState(null)   // URL para previsualizar
+  // ── Gestión de imagen ────────────────────────────────────
+  const [imagenFile,        setImagenFile]        = useState(null)   // archivo nuevo
+  const [imagenPreviewBlob, setImagenPreviewBlob] = useState(null)   // blob URL del archivo nuevo
+  const [imagenUrlActual,   setImagenUrlActual]   = useState('')     // URL actual guardada en BD
 
-  // ── Estado de categorías cargadas del backend ────────────
-  const [categorias, setCategorias] = useState([])
+  // La imagen que se muestra: primero el blob nuevo, luego la URL actual, luego nada
+  const imagenSrc = imagenPreviewBlob || imagenUrlActual || null
 
-  // ── Estados de UI ────────────────────────────────────────
-  const [error,    setError]    = useState('')
-  const [cargando, setCargando] = useState(false)
-  const [exito,    setExito]    = useState(false)
+  // ── Categorías y estados de UI ───────────────────────────
+  const [categorias,       setCategorias]       = useState([])
+  const [cargandoProducto, setCargandoProducto] = useState(true)
+  const [error,            setError]            = useState('')
+  const [cargando,         setCargando]         = useState(false)
+  const [toast,            setToast]            = useState(false)
 
-  // ── Carga las categorías al montar el componente ─────────
+  // ── Carga producto y categorías al montar ────────────────
   useEffect(() => {
-    const cargarCategorias = async () => {
+    const cargar = async () => {
       try {
-        const data = await productosService.listarCategorias()
-        setCategorias(data)
+        const [producto, cats] = await Promise.all([
+          productosService.obtenerPorId(id),
+          productosService.listarCategorias(),
+        ])
+        setFormData({
+          nombre:       producto.nombre       || '',
+          descripcion:  producto.descripcion  || '',
+          precio:       producto.precio       || '',
+          stock:        producto.stock        || '',
+          id_categoria: producto.id_categoria || '',
+        })
+        setImagenUrlActual(producto.imagen_url || '')
+        setCategorias(cats)
       } catch (err) {
-        setError('No se pudieron cargar las categorías.')
+        setError('No se pudo cargar el producto.')
+      } finally {
+        setCargandoProducto(false)
       }
     }
-    cargarCategorias()
-  }, [])
+    cargar()
+  }, [id])
 
-  // ── Limpia el preview al desmontar para liberar memoria ──
+  // ── Limpia el blob URL al desmontar ─────────────────────
   useEffect(() => {
     return () => {
-      if (imagenPreview) URL.revokeObjectURL(imagenPreview)
+      if (imagenPreviewBlob) URL.revokeObjectURL(imagenPreviewBlob)
     }
-  }, [imagenPreview])
+  }, [imagenPreviewBlob])
 
-  // ── Manejo de cambios en los inputs de texto ─────────────
+  // ── Cambios en inputs de texto ───────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     setError('')
   }
 
-  // ── Manejo de imagen seleccionada (cámara o galería) ─────
+  // ── Imagen seleccionada desde cámara o galería ───────────
   const handleImagenChange = (e) => {
     const archivo = e.target.files?.[0]
     if (!archivo) return
-
-    if (imagenPreview) URL.revokeObjectURL(imagenPreview)
+    if (imagenPreviewBlob) URL.revokeObjectURL(imagenPreviewBlob)
     setImagenFile(archivo)
-    setImagenPreview(URL.createObjectURL(archivo))
+    setImagenPreviewBlob(URL.createObjectURL(archivo))
     setError('')
-
-    // Limpia el input para permitir volver a seleccionar el mismo archivo
     e.target.value = ''
   }
 
+  // ── Quitar imagen (nueva o actual) ───────────────────────
   const quitarImagen = () => {
-    if (imagenPreview) URL.revokeObjectURL(imagenPreview)
+    if (imagenPreviewBlob) URL.revokeObjectURL(imagenPreviewBlob)
     setImagenFile(null)
-    setImagenPreview(null)
+    setImagenPreviewBlob(null)
+    setImagenUrlActual('')
   }
 
   // ── Envío del formulario ─────────────────────────────────
@@ -96,48 +107,63 @@ export default function PublicarProducto() {
     try {
       const token = localStorage.getItem('token')
 
-      // Construye FormData para poder adjuntar el archivo
       const data = new FormData()
       data.append('nombre',       formData.nombre)
       data.append('descripcion',  formData.descripcion)
       data.append('precio',       Number(formData.precio))
       data.append('stock',        Number(formData.stock))
       data.append('id_categoria', Number(formData.id_categoria))
+
       if (imagenFile) {
+        // Se subió una imagen nueva
         data.append('imagen', imagenFile)
+      } else {
+        // Se mantiene la actual (o vacío si se quitó)
+        data.append('imagen_url', imagenUrlActual || '')
       }
 
-      await productosService.crear(data, token)
-
-      setExito(true)
-      setTimeout(() => navigate('/productos'), 2000)
+      await productosService.actualizar(id, data, token)
+      setToast(true)
+      setTimeout(() => navigate('/mis-productos'), 2500)
 
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al publicar el producto.')
+      setError(err.response?.data?.message || 'Error al actualizar el producto.')
     } finally {
       setCargando(false)
     }
   }
 
+  // ── Estado de carga inicial ──────────────────────────────
+  if (cargandoProducto) {
+    return (
+      <div className="detalle-cargando">
+        <p>Cargando producto...</p>
+      </div>
+    )
+  }
+
   return (
+    <>
+      {/* ── Toast de éxito ──────────────────────────────── */}
+      {toast && (
+        <div className="toast-exito">
+          <span className="toast-icono">✅</span>
+          <div className="toast-texto">
+            <p className="toast-titulo">¡Cambios guardados!</p>
+            <p className="toast-subtitulo">Tu producto fue actualizado correctamente.</p>
+          </div>
+        </div>
+      )}
+
     <div className="auth-page">
       <div className="auth-card" style={{ maxWidth: '540px' }}>
 
         {/* Encabezado */}
         <div className="auth-header">
           <span className="auth-logo">MarketTdea</span>
-          <h1 className="auth-titulo">Publicar producto</h1>
-          <p className="auth-subtitulo">
-            Hola {usuario?.nombre}, completa los datos de tu producto
-          </p>
+          <h1 className="auth-titulo">Editar producto</h1>
+          <p className="auth-subtitulo">Modifica los datos de tu publicación</p>
         </div>
-
-        {/* Mensaje de éxito */}
-        {exito && (
-          <div className="auth-exito">
-             Producto publicado exitosamente. Redirigiendo...
-          </div>
-        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
 
@@ -149,7 +175,6 @@ export default function PublicarProducto() {
               name="nombre"
               value={formData.nombre}
               onChange={handleChange}
-              placeholder="Ej: Cálculo Diferencial - Stewart"
               className="campo-input"
               required
               maxLength={200}
@@ -163,7 +188,6 @@ export default function PublicarProducto() {
               name="descripcion"
               value={formData.descripcion}
               onChange={handleChange}
-              placeholder="Describe tu producto: estado, características, etc."
               className="campo-input campo-textarea"
               required
               maxLength={500}
@@ -171,7 +195,7 @@ export default function PublicarProducto() {
             />
           </div>
 
-          {/* Precio y Stock en la misma fila */}
+          {/* Precio y Stock */}
           <div className="campo-fila">
             <div className="campo-grupo">
               <label className="campo-label">Precio (COP)</label>
@@ -180,7 +204,6 @@ export default function PublicarProducto() {
                 name="precio"
                 value={formData.precio}
                 onChange={handleChange}
-                placeholder="Ej: 25000"
                 className="campo-input"
                 required
                 min={0}
@@ -193,7 +216,6 @@ export default function PublicarProducto() {
                 name="stock"
                 value={formData.stock}
                 onChange={handleChange}
-                placeholder="Ej: 1"
                 className="campo-input"
                 required
                 min={1}
@@ -220,21 +242,20 @@ export default function PublicarProducto() {
             </select>
           </div>
 
-          {/* ── Imagen del producto ────────────────────────────── */}
+          {/* ── Imagen ──────────────────────────────────────── */}
           <div className="campo-grupo">
             <label className="campo-label">
               Imagen del producto{' '}
               <span style={{ color: 'var(--texto-medio)', fontWeight: 400 }}>(opcional)</span>
             </label>
 
-            {/* Zona de preview o placeholder */}
             <div
               className="img-upload-zona"
-              onClick={() => !imagenPreview && refGaleria.current.click()}
+              onClick={() => !imagenSrc && refGaleria.current.click()}
             >
-              {imagenPreview ? (
+              {imagenSrc ? (
                 <div className="img-upload-preview">
-                  <img src={imagenPreview} alt="Vista previa" className="img-upload-preview-img" />
+                  <img src={imagenSrc} alt="Vista previa" className="img-upload-preview-img" />
                   <button
                     type="button"
                     className="img-upload-quitar"
@@ -245,33 +266,23 @@ export default function PublicarProducto() {
                 </div>
               ) : (
                 <div className="img-upload-placeholder">
-                  <span className="img-upload-icono"></span>
+                  <span className="img-upload-icono">🖼️</span>
                   <p className="img-upload-texto">Toca para agregar imagen</p>
                 </div>
               )}
             </div>
 
-            {/* Botones visibles solo cuando no hay imagen */}
-            {!imagenPreview && (
+            {!imagenSrc && (
               <div className="img-upload-botones">
-                <button
-                  type="button"
-                  className="img-upload-btn"
-                  onClick={() => refCamara.current.click()}
-                >
-                  Tomar foto
+                <button type="button" className="img-upload-btn" onClick={() => refCamara.current.click()}>
+                  📷 Tomar foto
                 </button>
-                <button
-                  type="button"
-                  className="img-upload-btn"
-                  onClick={() => refGaleria.current.click()}
-                >
-                   Cargar imagen
+                <button type="button" className="img-upload-btn" onClick={() => refGaleria.current.click()}>
+                  🖼️ Cargar imagen
                 </button>
               </div>
             )}
 
-            {/* Input oculto — cámara (en móvil abre la cámara trasera) */}
             <input
               ref={refCamara}
               type="file"
@@ -280,7 +291,6 @@ export default function PublicarProducto() {
               onChange={handleImagenChange}
               style={{ display: 'none' }}
             />
-            {/* Input oculto — galería / explorador de archivos */}
             <input
               ref={refGaleria}
               type="file"
@@ -298,7 +308,7 @@ export default function PublicarProducto() {
             <button
               type="button"
               className="btn-secundario"
-              onClick={() => navigate('/productos')}
+              onClick={() => navigate('/mis-productos')}
             >
               Cancelar
             </button>
@@ -307,12 +317,13 @@ export default function PublicarProducto() {
               className="auth-btn-primario"
               disabled={cargando}
             >
-              {cargando ? 'Publicando...' : 'Publicar producto'}
+              {cargando ? 'Guardando...' : 'Guardar cambios'}
             </button>
           </div>
 
         </form>
       </div>
     </div>
+    </>
   )
 }

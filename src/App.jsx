@@ -5,32 +5,44 @@ import Login from './pages/Login'
 import Principal from './pages/Principal'
 import Register from './pages/Register'
 import Productos from './pages/Productos'
-import { AuthProvider } from './context/AuthContext' 
+import { AuthProvider } from './context/AuthContext'
 import RutaProtegida from './components/RutaProtegida'
-import DetalleProducto from './pages/DetalleProducto' 
+import DetalleProducto from './pages/DetalleProducto'
 import PublicarProducto from './pages/PublicarProducto'
+import MisProductos from './pages/MisProductos'
+import EditarProducto from './pages/EditarProducto'
 
 function App() {
   return (
     <Router>
-      <AuthProvider>                                   
+      <AuthProvider>
         <Menu/>
-        <Routes>    
+        <Routes>
           <Route path='/' element={<Principal/>}/>
           <Route path='/login' element={<Login/>}/>
           <Route path='/registro' element={<Register/>}/>
           <Route path='/productos' element={<Productos/>}/>
-          <Route path='/productos/:id' element={<DetalleProducto/>}/> 
+          <Route path='/productos/:id' element={<DetalleProducto/>}/>
 
-          {/* Ruta protegida — por ahora con contenido temporal */}
-          <Route path='/publicar' element={            
-            <RutaProtegida>                            
+          {/* Rutas protegidas — requieren sesión activa */}
+          <Route path='/publicar' element={
+            <RutaProtegida>
               <PublicarProducto />
-            </RutaProtegida>                           
-          }/>                                          
+            </RutaProtegida>
+          }/>
+          <Route path='/mis-productos' element={
+            <RutaProtegida>
+              <MisProductos />
+            </RutaProtegida>
+          }/>
+          <Route path='/editar/:id' element={
+            <RutaProtegida>
+              <EditarProducto />
+            </RutaProtegida>
+          }/>
 
         </Routes>
-      </AuthProvider>                                  
+      </AuthProvider>
     </Router>
   )
 }
